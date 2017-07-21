@@ -1,0 +1,214 @@
+<html>  
+  <head>
+  
+    <title>班级地图</title>    
+      
+    <style>  
+    /* .province { 
+        stroke: black; 
+        stroke-width: 1px; 
+    } */  
+    
+/*  .southsea { 
+        stroke: black; 
+        stroke-width: 1px; 
+        fill: yellow; 
+    } */  
+  
+    /* .location circle{ 
+        fill: blue; 
+    } */  
+    </style>  
+      
+    <style type="text/css">  
+        .tooltip{  
+            font-family:simsun;  
+            font-size:14px;  
+            width:120;  
+            height:auto;  
+            position:absolute;   
+            text-align:center;  
+            border-style:solid;  
+            border-width:1px;  
+            background-color:white;  
+            border-radius:5px;    
+        }  
+  
+  	</style>  
+  <!-- <script type="text/javascript" src="js/d3/d3.js"></script>   
+  <script type="text/javascript" src="js/d3/d3.min.js"></script>  
+  
+  <script type="text/javascript" src="js/d3/topojson.js"></script>   -->
+	<script src="http://d3js.org/d3.v3.min.js"></script> 
+  </head>  
+    
+  <body>
+ 
+    <script type="text/javascript">
+        var width =1240;  
+        var height = 1100;  
+     
+        //添加一个svg     
+        var svg = d3.select("body").append("svg")  
+                    .attr("width",width)  
+                    .attr("height",height)
+					.attr("transform", "translate(0,0)")
+					;  
+                      
+        //定义一个投影函数  
+        var projection = d3.geo.mercator()  
+                            .center([110,40]) //设置绘制地图的中心 --根据实定情况定  
+                            .scale(950) //可以调整所绘地图的大小 --根据实定情况定  
+                            .translate([width/2,height/3]); //偏移量  
+          
+        //通过投影函数定义地理路径生成器  
+        var path = d3.geo.path()  
+                        .projection(projection);  
+          
+        //例如以北京经纬度作为投影  
+        //var peking=[116.3,39.9];  
+        //var proPeking =projection(peking);  
+          
+        //读取中国地图的topojson文件  
+        d3.json("https://raw.githubusercontent.com/njuyang14/StudentsMap/master/china.geojson",function(error,topodata)  
+        {  
+            //判断是否出错，在控制台输出错误信息  
+            if(error)  
+                return console.error(error);  
+              
+            //将topojson转换为geojson  
+            //var geodata = topojson.feature(topodata,topodata.objects.china);  
+  
+              
+            //实现图表的缩放 
+            // var zoom = d3.behavior.zoom() 
+            //             .scaleExtent([1,5]) 
+            //             .on("zoom",zoomed);                  
+             
+            // function zoomed() 
+            // { 
+            //     d3.select(this) 
+            //         .attr("transform","translate("+d3.event.translate+")scale("+d3.event.scale+")"); 
+            // }  
+              
+            //包含中国各省路径的分组元素  
+            var china =svg.append("g")  
+            //.call(zoom) //调用图表缩放函数  
+            ;  
+              
+            //颜色  
+            var color = d3.scale.category20();  
+               
+			var provinces = 
+			china.selectAll("path")
+			.data(topodata.features )
+			.enter()
+			.append("path")
+			.attr("stroke","#000")
+			.attr("stroke-width",1)
+			.attr("fill", function(d,i){
+				return color(i);
+			})
+			.attr("d", path )
+			.on("mouseover",function(d,i){
+                d3.select(this)
+                    .attr("fill","yellow");
+            })
+            .on("mouseout",function(d,i){
+                d3.select(this)
+                    .attr("fill",color(i));
+            });                          
+            //读取要标注的省份信息  
+            d3.json("https://raw.githubusercontent.com/njuyang14/StudentsMap/master/places.json",function(error,placedata)  
+            {  
+                //插入分组元素  
+                var location = svg.selectAll("location")  
+                        .data(placedata.location)  
+                        .enter()  
+                        .append("g")  
+                        //.attr("class","location")  
+                        .attr("transform",function(d){  
+                            //计算标注点的位置  
+                            var coor = projection([d.log, d.lat]); //经纬度的投影  
+                            return "translate("+ coor[0] + "," + coor[1] +")";  
+  
+                        });  
+                      
+                    //画圆作为标注  
+                    location.append("circle")  
+                            .attr("r",2) //半径  
+                            .style("fill",function(d,i)   
+                            {            
+                                return"yellow";  
+                                      
+                            });  
+                      
+                    //添加文字  
+                    location.append("text")  
+                        .text(function(d)  
+                        {  
+                            return d.name;  
+                        }  
+                        )  
+                        //.attr("fill","red")  
+                        .attr("fill",function(d,i)  
+                        {          
+                                return d3.rgb(106,0,95);  
+                        })  
+                          
+                        .attr("text-anchor","middle")    
+                        .attr("font-family","sans-setif")    
+                        .attr("font-size","11px")    
+                        .attr("font-weight","bold")    
+                        ;     
+            });               
+                                  
+                          
+              
+        });  
+              
+    //插入南海诸岛的svg图片  
+    //  d3.xml("data/southchinasea.svg",function(error,xmlDoc)  
+    //  {  
+    //     svg.html(function(d)  
+    //     {  
+    //         return d3.select(this).html()+xmlDoc.getElementsByTagName("g")[0].outerHTML;  
+    //     //在当前元素的html里添加 svg文件里面的 第一个g标签及其内容   
+    //     });  
+           
+    //      //return   document.body.appendChild(xmlDoc.documentElement);  
+                  
+    //     var gSouthSea = d3.select("#southsea");  
+      
+    //     gSouthSea.attr("transform","translate(550,450)scale(0.5)")  
+    //         .attr("class","southsea")  
+    //         .attr("stroke","black")  
+    //         .attr("stroke-width"," 1px")  
+    //         .attr("fill","yellow");  
+          
+          
+    //     //------------------------添加提示框的div  
+    //         var tooltip = d3.select("body").append("div")  
+    //                     .attr("class","tooltip") //用于css设置类样式  
+    //                     .attr("opacity",0.0);  
+    //     //响应事件  
+    //         //-鼠标移入事件  
+    //     gSouthSea.on("mouseover",function(d)  
+    //         {     
+    //             //设置tooltip文字  
+    //             tooltip.html("中国南海诸岛")  
+    //             //设置tooltip的位置(left,top 相对于页面的距离)   
+    //                     .style("left",(d3.event.pageX)+"px")  
+    //                     .style("top",(d3.event.pageY+20)+"px")  
+    //                     .style("opacity",1.0);  
+    //         })  
+    //         //--鼠标移出事件  
+    //         .on("mouseout",function(d)  
+    //         {  
+    //             tooltip.style("opacity",0.0);  
+    //         });   
+     
+    //  });               
+    </script>      
+  </body>  
+</html>
