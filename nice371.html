@@ -22,16 +22,17 @@
       
     <style type="text/css">  
         .tooltip{  
-            font-family:simsun;  
-            font-size:14px;  
+            font-family:宋体;  
+            font-size:16px;  
             width:120;  
             height:auto;  
             position:absolute;   
             text-align:center;  
-            border-style:solid;  
-            border-width:1px;  
-            background-color:white;  
-            border-radius:5px;    
+            border-style:groove;  
+            border-width:0.1px;  
+            background-color:#F0FFF0;  
+            border-radius:5px;
+            font-weight: thick;    
         }  
   
   	</style>  
@@ -123,7 +124,11 @@
 			.attr("stroke","#000")
 			.attr("stroke-width",1)
 			.attr("fill", function(d,i){
-				return color(i);
+                //if(i==10)return color(i+1);
+                //else if(i==30)return color(i+10);
+                //else if(d.properties.id==15)return color(8);
+                //else
+				    return color(i);
 			})
 			.attr("d", path )
 			.on("mouseover",function(d,i){
@@ -132,8 +137,8 @@
 
                 var studentData;
                 //var studentListUrl = "https://raw.githubusercontent.com/njuyang14/StudentsMap/master/places.json";
-                var studentListUrl = "https://raw.githubusercontent.com/njuyang14/StudentsMap/master/partitions/"+ d.properties.name + ".json";
-                //var studentListUrl = "./partitions/" + d.properties.name + ".json";
+                //var studentListUrl = "https://raw.githubusercontent.com/njuyang14/StudentsMap/master/partitions/"+ d.properties.name + ".json";
+                var studentListUrl = "./partitions/" + d.properties.name + ".json";
                 var pagex = d3.event.pageX;
                 var pagey = d3.event.pageY;
                 $.getJSON(studentListUrl,function(data){
@@ -146,7 +151,7 @@
                     tooltip.html("--"+d.properties.name+"--"+"<br/>"+studentOutput)  
                     //设置tooltip的位置(left,top 相对于页面的距离)   
                         .style("left",(pagex+20)+"px")
-                        .style("top",(pagey-((studentData.length*10+10)/2))+"px")
+                        .style("top",(pagey-((studentData.length*10+30)/2))+"px")
                         .style("opacity",1);           
                 });
             })
@@ -156,8 +161,10 @@
                 tooltip.style("opacity",0.0);
             });
 
-            //读取要标注的省份信息  
-            d3.json("https://raw.githubusercontent.com/njuyang14/StudentsMap/master/places.json",function(error,placedata)  
+            //读取要标注的省份信息
+            //var placeUrl = "https://raw.githubusercontent.com/njuyang14/StudentsMap/master/places.json";
+            var placeUrl = "places.json";
+            d3.json(placeUrl,function(error,placedata)  
             {  
                 //插入分组元素  
                 var location = svg.selectAll("location")  
