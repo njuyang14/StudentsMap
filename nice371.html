@@ -137,8 +137,8 @@
 
                 var studentData;
                 //var studentListUrl = "https://raw.githubusercontent.com/njuyang14/StudentsMap/master/places.json";
-                //var studentListUrl = "https://raw.githubusercontent.com/njuyang14/StudentsMap/master/partitions/"+ d.properties.name + ".json";
-                var studentListUrl = "./partitions/" + d.properties.name + ".json";
+                var studentListUrl = "https://raw.githubusercontent.com/njuyang14/StudentsMap/master/partitions/"+ d.properties.name + ".json";
+                //var studentListUrl = "./partitions/" + d.properties.name + ".json";
                 var pagex = d3.event.pageX;
                 var pagey = d3.event.pageY;
                 $.getJSON(studentListUrl,function(data){
@@ -162,8 +162,8 @@
             });
 
             //读取要标注的省份信息
-            //var placeUrl = "https://raw.githubusercontent.com/njuyang14/StudentsMap/master/places.json";
-            var placeUrl = "places.json";
+            var placeUrl = "https://raw.githubusercontent.com/njuyang14/StudentsMap/master/places.json";
+            //var placeUrl = "places.json";
             d3.json(placeUrl,function(error,placedata)  
             {  
                 //插入分组元素  
