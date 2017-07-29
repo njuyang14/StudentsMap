@@ -39,7 +39,8 @@
   <script type="text/javascript" src="js/d3/d3.min.js"></script>  
   
   <script type="text/javascript" src="js/d3/topojson.js"></script>   -->
-	<script src="d3.v3.min.js"></script> 
+    <script src="d3.v3.min.js"></script>
+    <script type="text/javascript" src="jquery-3.2.1.min.js"></script> 
   </head>  
     
   <body>
@@ -64,13 +65,16 @@
         //通过投影函数定义地理路径生成器  
         var path = d3.geo.path()  
                         .projection(projection);  
-          
+        
+        var tooltip = d3.select("body").append("div")
+            .attr("class","tooltip") //用于css设置类样式  
+            .attr("opacity",0.0);  
         //例如以北京经纬度作为投影  
         //var peking=[116.3,39.9];  
         //var proPeking =projection(peking);  
           
         //读取中国地图的topojson文件  
-        d3.json("https://raw.githubusercontent.com/njuyang14/StudentsMap/dev/china.geojson",function(error,topodata)  
+        d3.json("https://raw.githubusercontent.com/njuyang14/StudentsMap/master/china.geojson",function(error,topodata)  
         {  
             //判断是否出错，在控制台输出错误信息  
             if(error)  
@@ -113,13 +117,30 @@
 			.on("mouseover",function(d,i){
                 d3.select(this)
                     .attr("fill","yellow");
+
+                var studentData;
+                //var studentListUrl = "https://raw.githubusercontent.com/njuyang14/StudentsMap/master/partitions/"
+                //                     + d.properties.name + ".json";
+                var studentListUrl = "./partitions/" + d.properties.name + ".json";
+                $.getJSON(studentListUrl,function(data){
+                    //alert(data);
+                    studentData = data;           
+                });
+                
+                tooltip.html(d.properties.name+"<br/>"+studentData[0].name)  
+                //设置tooltip的位置(left,top 相对于页面的距离)   
+                        .style("left",(d3.event.pageX)+"px")  
+                        .style("top",(d3.event.pageY+20)+"px")  
+                        .style("opacity",1);
             })
             .on("mouseout",function(d,i){
                 d3.select(this)
                     .attr("fill",color(i));
-            });                          
+                tooltip.style("opacity",0.0);
+            });
+
             //读取要标注的省份信息  
-            d3.json("https://raw.githubusercontent.com/njuyang14/StudentsMap/dev/places.json",function(error,placedata)  
+            d3.json("https://raw.githubusercontent.com/njuyang14/StudentsMap/master/places.json",function(error,placedata)  
             {  
                 //插入分组元素  
                 var location = svg.selectAll("location")  
